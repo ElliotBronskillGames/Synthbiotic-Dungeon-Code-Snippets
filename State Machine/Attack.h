@@ -4,18 +4,17 @@
 
 #include "CoreMinimal.h"
 
-#include "EnemyBase.h"
+#include "EnemyBaseController.h"
 #include "State.h"
 
 /**
  * 
  */
-class SYNTHBIOTICDUNGEONC_API Chase : public State
+class SYNTHBIOTICDUNGEONC_API Attack : public State
 {
-	AAIController * _controller;
-	AEnemyBase * _controlledEnemy;
+	AEnemyBaseController * _controller;
 public:
-	Chase(int id, AAIController * controller, AEnemyBase * controlledEnemy);
+	Attack(int id,  AEnemyBaseController * controller);
 	virtual void Tick() override;
 	virtual void OnEnter() override;
 	virtual void OnExit() override;

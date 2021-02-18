@@ -7,7 +7,7 @@
 #include "State.h"
 #include <functional>
 #include <list>
-#include <map>
+#include <unordered_map>
 #include <new>
 
 class SYNTHBIOTICDUNGEONC_API StateMachine
@@ -20,13 +20,13 @@ class SYNTHBIOTICDUNGEONC_API StateMachine
 		State* _to;
 	};
 	Transition * GetTransition();
-	State * _currentState = nullptr;
-	std::map<int, std::list<Transition>> * _transitions = new std::map<int, std::list<Transition>>; 
-	std::list<Transition> * _currentTransitions = new std::list<Transition>;
-	std::list<Transition> * _anyTransitions = new std::list<Transition>;
-	std::list<Transition> * _emptyList = new std::list<Transition>;
-
+	
 public:
+	State * _currentState = nullptr;
+	std::unordered_map<int, std::list<Transition*>*> * _transitions = new std::unordered_map<int, std::list<Transition*>*>; 
+	std::list<Transition*> * _currentTransitions = nullptr;
+	std::list<Transition*> * _anyTransitions = new std::list<Transition*>;
+	std::list<Transition*> * _emptyTransitions = new std::list<Transition*>;
 	~StateMachine();
 	void Tick();
 	void SetState(State * state);

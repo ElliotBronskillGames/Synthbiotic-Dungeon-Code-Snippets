@@ -6,11 +6,11 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/PawnMovementComponent.h"
 
-Chase::Chase(int id, AAIController * controller, ACharacter * target)
+Chase::Chase(int id, AAIController * controller, AEnemyBase * controlledEnemy)
 {
 	_id = id;
 	_controller = controller;
-	_target = target;
+	_controlledEnemy = controlledEnemy;
 }
 
 void Chase::Tick() {
@@ -19,12 +19,13 @@ void Chase::Tick() {
 
 void Chase::OnEnter() {
 	// Turn on Movement
-	_controller->K2_ClearFocus(); // Might need to use other clearfocus()
-	_controller->MoveToActor(_target);
+	_controller->MoveToActor(_controlledEnemy->_Target);
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("Entered CHASE")));
 }
 
 void Chase::OnExit() {
 	// Turn off Movement
 	_controller->StopMovement();
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("Exited CHASE")));
 }
 

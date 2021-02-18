@@ -6,11 +6,25 @@
 
 StateMachine::~StateMachine()
 {
-    delete _currentState;
-    delete _transitions;
-    delete _currentTransitions;
+    std::list<Transition*>::iterator transition;
+    // For each element, free its list
+    
+    for (int i = 0; i < _transitions->size(); i++) 
+    {
+        // For each list, free all Transitions
+        for (transition = _transitions->at(i)->begin(); transition != _transitions->at(i)->end(); ++transition) { 
+            delete *transition;
+        }
+        delete _transitions->at(i);
+    }
+    delete _transitions; // Finally, free the map itself
+    
+    // Free all Transitions
+    for (transition = _anyTransitions->begin(); transition != _anyTransitions->end(); ++transition) { 
+        delete *transition;
+    }
     delete _anyTransitions;
-    delete _emptyList;
+    //delete _emptyTransitions;
 }
 
 StateMachine::Transition::Transition(State* to, std::function<bool()> condition)
@@ -20,22 +34,32 @@ StateMachine::Transition::Transition(State* to, std::function<bool()> condition)
 }
 StateMachine::Transition * StateMachine::GetTransition()
 {
-    for (std::list<Transition>::iterator transition = _anyTransitions->begin(); transition != _anyTransitions->end(); ++transition) {
-        if (transition->_condition())
-            return std::addressof(*transition);
+    for (auto transition = _anyTransitions->begin(); transition != _anyTransitions->end(); ++transition) {
+        if ((*transition) && (*transition)->_condition())
+        {
+            return *transition;
+        }
     }
-    for (std::list<Transition>::iterator transition = _currentTransitions->begin(); transition != _anyTransitions->end(); ++transition) {
-        if (transition->_condition())
-            return std::addressof(*transition);
+    if (_currentTransitions == nullptr)
+    {
+        return nullptr;
     }
-    
+    for (auto transition = _currentTransitions->begin(); transition != _anyTransitions->end(); ++transition) {
+        GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("In Cur transition loop")));
+        /*
+        if ((*transition)->_condition()) // This breaks
+        {
+            return *transition;
+        }*/
+    }
     return nullptr;
 }
 
 void StateMachine::Tick()
 {
-    StateMachine::Transition * transition = GetTransition();
-    if (transition) {
+    Transition * transition = GetTransition();
+    if (transition != nullptr) { // This breaks
+        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("NOT NULL")));
         SetState(transition->_to);
     }
     if (_currentState) _currentState->Tick();
@@ -49,24 +73,29 @@ void StateMachine::SetState(State * state)
     _currentState = state;
 
     // Need to get the list of transitions for the current state. If its null, set to empty transitions.
-    _currentTransitions = std::addressof(_transitions->at(_currentState->_id));
-    if (_currentTransitions == nullptr) 
-        _currentTransitions = _emptyList;
+    if (_transitions->count(_currentState->_id) > 0) // 
+        _currentTransitions = _transitions->at(_currentState->_id);
+    else
+        _currentTransitions = _emptyTransitions;
 
+    if (_currentTransitions == _emptyTransitions)
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("_currentTrans is _empty")));
+    }
+    
     _currentState->OnEnter();
 }
 
 void StateMachine::AddTransition(State* from, State* to, std::function<bool()> const& condition)
 {
-    if (_transitions->count(from->_id) > 0) {
-        std::list<Transition> transitions;
-        _transitions->insert(std::pair<int, std::list<Transition>>(from->_id, transitions));
+    if (_transitions->count(from->_id) == 0) { // If this state is not in the map yet
+        std::list<Transition*> *transitions = new std::list<Transition*>;
+        _transitions->insert(std::pair<int, std::list<Transition*>*>(from->_id, transitions));
     }
-    _transitions->at(from->_id).push_back(Transition(to, condition));
+    _transitions->at(from->_id)->push_back(new Transition(to, condition)); // Error here
 }
 
 void StateMachine::AddAnyTransition(State* to, std::function<bool()> condition)
 {
-    _anyTransitions->push_back(Transition(to, condition));
+    _anyTransitions->push_back(new Transition(to, condition));
 }
-
