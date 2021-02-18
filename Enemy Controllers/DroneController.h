@@ -3,15 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-
-#include <string>
-
-#include "AIController.h"
-#include "StateMachine.h"
 #include "Idle.h"
 #include "Chase.h"
 #include "Attack.h"
-#include "EnemyBase.h"
+#include "EnemyBaseController.h"
 
 #include "DroneController.generated.h"
 
@@ -19,12 +14,8 @@
  * 
  */
 UCLASS()
-class SYNTHBIOTICDUNGEONC_API ADroneController : public AAIController
+class SYNTHBIOTICDUNGEONC_API ADroneController : public AEnemyBaseController
 {
-public:
-	UPROPERTY(EditDefaultsOnly, Category="Controller Variables") AEnemyBase * _controlledEnemy;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Controller Variables") TMap<FString, UBehaviorTree*> _behaviorTrees;
-private:
 	GENERATED_BODY()
 	enum EStates
 	{
@@ -35,13 +26,9 @@ private:
 	Idle * _idle;
 	Chase * _chase;
 	Attack * _attack;
-	StateMachine * _stateMachine = new StateMachine();
 protected:
 	~ADroneController();
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
-	bool InRangeAndHasLOS();
-	bool OutOfRangeOrNoLOS();
-	bool CheckLOSToTarget();
 };
 
