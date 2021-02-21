@@ -7,6 +7,8 @@
 #include "Chase.h"
 #include "Attack.h"
 #include "EnemyBaseController.h"
+#include "Startled.h"
+
 
 #include "DroneController.generated.h"
 
@@ -20,10 +22,12 @@ class SYNTHBIOTICDUNGEONC_API ADroneController : public AEnemyBaseController
 	enum EStates
 	{
 		IDLE,
+		STARTLED,
 		CHASE,
 		ATTACK
 	};
 	Idle * _idle;
+	Startled * _startled;
 	Chase * _chase;
 	Attack * _attack;
 protected:

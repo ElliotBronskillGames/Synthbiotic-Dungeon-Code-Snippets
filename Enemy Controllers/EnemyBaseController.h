@@ -6,6 +6,7 @@
 #include "AIController.h"
 #include "EnemyBase.h"
 #include "StateMachine.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "EnemyBaseController.generated.h"
 
 /**
@@ -23,7 +24,10 @@ protected:
 	StateMachine * _stateMachine = new StateMachine();
 	bool InRangeAndHasLOS();
 	bool OutOfRangeOrNoLOS();
-	bool CheckLOSToTarget();
+	bool CanSeeTarget();
+	float AngleToTarget();
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
+private:
+	bool RaycastToTarget(FVector start);
 };
