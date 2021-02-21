@@ -34,23 +34,18 @@ StateMachine::Transition::Transition(State* to, std::function<bool()> condition)
 }
 StateMachine::Transition * StateMachine::GetTransition()
 {
-    for (auto transition = _anyTransitions->begin(); transition != _anyTransitions->end(); ++transition) {
-        if ((*transition) && (*transition)->_condition())
-        {
+    std::list<Transition*>::iterator transition;
+    for (transition = _anyTransitions->begin(); transition != _anyTransitions->end();) {
+        if ((*transition) == nullptr || (*transition)->_condition == nullptr) break;
+        if ((*transition)->_condition())
             return *transition;
-        }
+        ++transition;
     }
-    if (_currentTransitions == nullptr)
-    {
-        return nullptr;
-    }
-    for (auto transition = _currentTransitions->begin(); transition != _anyTransitions->end(); ++transition) {
-        GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("In Cur transition loop")));
-        /*
-        if ((*transition)->_condition()) // This breaks
-        {
+    for (transition = _currentTransitions->begin(); transition != _currentTransitions->end();) {
+        if ((*transition) == nullptr || (*transition)->_condition == nullptr) break;
+        if ((*transition)->_condition())
             return *transition;
-        }*/
+        ++transition;
     }
     return nullptr;
 }
@@ -58,8 +53,7 @@ StateMachine::Transition * StateMachine::GetTransition()
 void StateMachine::Tick()
 {
     Transition * transition = GetTransition();
-    if (transition != nullptr) { // This breaks
-        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("NOT NULL")));
+    if (transition) { 
         SetState(transition->_to);
     }
     if (_currentState) _currentState->Tick();
@@ -92,7 +86,7 @@ void StateMachine::AddTransition(State* from, State* to, std::function<bool()> c
         std::list<Transition*> *transitions = new std::list<Transition*>;
         _transitions->insert(std::pair<int, std::list<Transition*>*>(from->_id, transitions));
     }
-    _transitions->at(from->_id)->push_back(new Transition(to, condition)); // Error here
+    _transitions->at(from->_id)->push_back(new Transition(to, condition)); 
 }
 
 void StateMachine::AddAnyTransition(State* to, std::function<bool()> condition)

@@ -5,6 +5,9 @@
 
 #include "BrainComponent.h"
 #include "EnemyBaseController.h"
+#include "BehaviorTree/BehaviorTree.h"
+#include "BehaviorTree/BlackboardData.h"
+#include "BehaviorTree/BehaviorTreeComponent.h"
 
 Attack::Attack(int id,  AEnemyBaseController * controller)
 {
@@ -17,8 +20,11 @@ void Attack::Tick() {
 }
 
 void Attack::OnEnter() {
-	// Run Attack BT
+	// Run BT
 	_controller->RunBehaviorTree(*_controller->_behaviorTrees.Find("ATTACK"));
+	// Set BT Keys
+	_controller->GetBlackboardComponent()->SetValueAsObject("Target", _controller->_controlledEnemy->_Target);
+	_controller->GetBlackboardComponent()->SetValueAsObject("ControlledEnemy", _controller->_controlledEnemy);
 	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("Entered ATTACK")));
 }
 

@@ -20,12 +20,11 @@ void Chase::Tick() {
 void Chase::OnEnter() {
 	// Turn on Movement
 	_controller->MoveToActor(_controlledEnemy->_Target);
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("Entered CHASE")));
+	_controller->K2_ClearFocus();
 }
 
 void Chase::OnExit() {
 	// Turn off Movement
 	_controller->StopMovement();
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("Exited CHASE")));
 }
 
